@@ -23,14 +23,17 @@ export default function AnswersItem({
   // Feel free to change this props names to what suits you best
   // Rememeber here we're destructuring answerItem, which is the prop name that we've passed
   answerItem: {username, color, spendTime, review},
-  editHandler
+                                      editHandler, deleteHandler
 }) {
   return (
     <li>
       <article className="answer">
         <div style={{display: "flex", justifyContent: "space-between"}}>
           <h3>{username || "Anon"} said:</h3>
-          <button style={{padding: "4px"}} onClick={editHandler}>Edit answers</button>
+          <div>
+            <button style={{padding: "4px"}} onClick={editHandler}>Edit answer</button>
+            <button style={{padding: "4px", marginLeft: "2px"}} onClick={deleteHandler}>&#128465; Delete</button>
+          </div>
         </div>
         <p>
           <em>How do you rate your rubber duck colour?</em>

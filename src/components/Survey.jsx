@@ -1,9 +1,10 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Checkbox from "./Checkbox.jsx";
 import Radio from "./Radio.jsx";
 import TextArea from "./TextArea.jsx";
 import TextField from "./TextField.jsx";
 import AnswersList from "./AnswersList.jsx";
+import {deleteAnswer, getAnswers, postAnswer, putAnswer} from "../providers/answerProvider.js";
 
 const initialState = {
     id: "",
@@ -26,6 +27,12 @@ function Survey() {
     const [formData, setFormData] = useState(initialState);
     const [answers, setAnswers] = useState([]);
 
+    useEffect(() => {
+            getAnswers().then((answers) => setAnswers(answers));
+        }
+        , []
+    );
+
 
     const handleChange = (event) => {
         const {id, name, value, type} = event.target;
@@ -43,33 +50,53 @@ function Survey() {
     const submitForm = (event) => {
         event.preventDefault();
         if (formData.id !== "") {
-            const newAnswers = answers.map((answer) => {
-                if (answer.id === formData.id) {
-                    return formData;
-                }
-                return answer;
+            putAnswer(formData).then((res) => res.json()).then((json) => {
+                const newAnswers = answers.map((answer) => {
+                    if (answer.id === formData.id) {
+                        return json;
+                    }
+                    return answer;
+                });
+                setAnswers(newAnswers);
+                setFormData(initialState);
+            }).catch(() => {
+                alert("Could not update answer. Try again later.");
             });
-            setAnswers(newAnswers);
-            setFormData(initialState);
             return
         }
 
         const newId = Math.max(...answers.map((answer) => answer.id), 0) + 1;
         formData.id = newId;
-        setAnswers([...answers, formData]);
-        setFormData(initialState);
-    }
+        postAnswer(formData).then(() => {
+            console.log("Answer posted successfully");
+            setAnswers([...answers, formData]);
+            setFormData(initialState);
+        }).catch(() => {
+            alert("Could not post answer. Try again later.");
+        });
+    };
 
     const editHandler = (id) => {
         const answer = answers.find((answer) => answer.id === id);
         setFormData(answer);
     }
 
+    const deleteHandler = (id) => {
+        deleteAnswer(id).then(() => {
+                alert("Answer deleted successfully");
+                setAnswers(answers.filter((answer) => answer.id !== id));
+            }
+        ).catch(() => {
+                alert("Could not delete answer. Try again later.");
+            }
+        );
+    }
+
     return (
         <main className="survey">
             <section className={`survey__list ${open ? "open" : ""}`}>
                 <h2>Answers list</h2>
-                <AnswersList answersList={answers} editHandler={editHandler}/>
+                <AnswersList answersList={answers} editHandler={editHandler} deleteHandler={deleteHandler}/>
             </section>
             <section className="survey__form">
                 <form className="form" onSubmit={submitForm}>
