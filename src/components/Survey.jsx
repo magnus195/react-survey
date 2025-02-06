@@ -6,6 +6,7 @@ import TextField from "./TextField.jsx";
 import AnswersList from "./AnswersList.jsx";
 
 const initialState = {
+    id: "",
     color: "",
     spendTime: [],
     review: "",
@@ -41,18 +42,38 @@ function Survey() {
 
     const submitForm = (event) => {
         event.preventDefault();
+        if (formData.id !== "") {
+            const newAnswers = answers.map((answer) => {
+                if (answer.id === formData.id) {
+                    return formData;
+                }
+                return answer;
+            });
+            setAnswers(newAnswers);
+            setFormData(initialState);
+            return
+        }
+
+        const newId = Math.max(...answers.map((answer) => answer.id), 0) + 1;
+        formData.id = newId;
         setAnswers([...answers, formData]);
         setFormData(initialState);
+    }
+
+    const editHandler = (id) => {
+        const answer = answers.find((answer) => answer.id === id);
+        setFormData(answer);
     }
 
     return (
         <main className="survey">
             <section className={`survey__list ${open ? "open" : ""}`}>
                 <h2>Answers list</h2>
-                <AnswersList answersList={answers}/>
+                <AnswersList answersList={answers} editHandler={editHandler}/>
             </section>
             <section className="survey__form">
                 <form className="form" onSubmit={submitForm}>
+                    <input type={"hidden"} name={"id"} value={formData.id}/>
                     <h2>Tell us what you think about your rubber duck!</h2>
                     <div className="form__group radio">
                         <h3>How do you rate your rubber duck colour?</h3>

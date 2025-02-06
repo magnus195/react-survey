@@ -22,12 +22,16 @@ function ItemsList({ list }) {
 export default function AnswersItem({
   // Feel free to change this props names to what suits you best
   // Rememeber here we're destructuring answerItem, which is the prop name that we've passed
-  answerItem: { username, color, spendTime, review }
+  answerItem: {username, color, spendTime, review},
+  editHandler
 }) {
   return (
     <li>
       <article className="answer">
-        <h3>{username || "Anon"} said:</h3>
+        <div style={{display: "flex", justifyContent: "space-between"}}>
+          <h3>{username || "Anon"} said:</h3>
+          <button style={{padding: "4px"}} onClick={editHandler}>Edit answers</button>
+        </div>
         <p>
           <em>How do you rate your rubber duck colour?</em>
           <span className="answer__line">{color}</span>
